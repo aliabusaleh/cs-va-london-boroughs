@@ -79,39 +79,6 @@
         </section>
         <!-- end of average income number display -->
 
-        <!-- BAME bar chart -->
-        <section id="BAME" class="card bar-grid">
-            <header class="card-header">
-                <h6>Black, Asian and Minority Ethnic</h6>
-            </header>
-            <div class="chart-content">
-                <p>Within London there exists significant variation
-                    from borough to borough in terms of BME
-                    population – notably both Newham and Brent have
-                    greater than 60% non-White: British residents.
-                </p>
-            </div>
-            <div id="bar-BAME">
-                <a class="reset" style="display: none" href="javascript: dc.filterAll(); dc.redrawAll();">Reset</a>
-            </div>
-        </section>
-        <!-- end of BAME bar chart -->
-
-        <!--non english speaking bar chart -->
-        <section id="english-lng" class="card bar-grid">
-            <header class="card-header">
-                <h6>Main Language Is Not English</h6>
-            </header>
-            <div class="chart-content">
-                <p> Across London, 22 per cent — equivalent to 
-                    just over 1.7 million people — do not speak English as their main language.
-                </p>
-            </div>
-            <div id="bar-english-lng">
-                <a class="reset" style="display: none" href="javascript: dc.filterAll(); dc.redrawAll();">Reset</a>
-            </div>
-        </section>
-        <!--end of non english speaking bar chart -->
 
         <!--largest migrant population by birth -->
         <section id="migrant-by-birth" class="card">
@@ -126,7 +93,7 @@
                     </p>
                 </div>
                 <div class="pie-chart">
-                    <div id="pie-migrant-by-birth">
+                    <div id="barchart-sector-data">
                         <a class="reset" style="display: none" href="javascript: dc.filterAll(); dc.redrawAll();">Reset</a>                        
                     </div>
                 </div> 
@@ -187,7 +154,7 @@
                         influence physical activity?
                     </p>
                 </div>
-                <div id="scatter-obesity"></div>
+                <div id="line-educational-level"></div>
                 <div class="chart-content">
                     <p>The consensus linked increased green space to increased
                         perceived health and reduced prevalence rates of a
@@ -210,7 +177,7 @@
                         London earn 14.6 per cent less than their male colleagues.
                     </p>
                 </div>
-                <div id="line-gender-pay"></div>
+                <div id="spider_occupation_chart"></div>
             </div>
         </section>
         <!-- end of gender pay gap composite chart -->
@@ -222,12 +189,10 @@
             </header>
             <div class="chart-grid">
                 <div class="chart-content">
-                    <p>As of December 2014
-                        the average house price in the London is £455, 014<br>
-                        <b>* Chart in £1000s</b>
+                    <p id="pie-chart-entrepreneur-text">
                     </p>
                 </div>
-                <div id="row-avg-house">
+                <div id="pie-chart-entrepreneur">
                     <a class="reset" style="display: none" href="javascript: dc.filterAll(); dc.redrawAll();">Reset</a>
                 </div>
             </div>
@@ -313,6 +278,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <!-- intro.js  -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/intro.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <!-- scripts.js  -->
     <script src="static/js/d3_locale.js"></script>
     <script src="static/js/scripts.js"></script>

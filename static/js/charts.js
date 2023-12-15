@@ -1,481 +1,230 @@
 /*jshint esversion: 6 */
 
-queue()
-	.defer(d3.csv, "static/data/boroughs-data.csv") // load csv data 
-	.defer(d3.csv, "static/data/map-data.csv") // load csv data for choropleth map
-	.defer(d3.json, "static/data/boroughsGeo.json") // load geoJson data for choropleth map
-	.await(makeCharts); // load data into makeCharts function when complete or throw error if an error 
+d3.csv("static/data/Final_data_Regional_Level.csv", d => {
+	return {
+		Region_Name: d.Region,
+		Nationality: d.Nationality,
+		Population: parseInt(d['population aged 16-64 yearsstimate'].replace(/,/g, ''), 10),
+		Employment_Population: parseInt(d['In employment'].replace(/,/g, ''), 10),
+		Job_density: parseInt(d['Job density %'].replace(/,/g, ''), 10),
+		Sector_Agriculture: parseInt(d["Agriculture, forestry and fishing"].replace(/,/g, ''), 10),
+		Sector_Energy: parseInt(d["Energy and water"].replace(/,/g, ''), 10),
+		Sector_Manufacturing: parseInt(d["Manufacturing"].replace(/,/g, ''), 10),
+		Sector_Construction: parseInt(d["Construction"].replace(/,/g, ''), 10),
+		Sector_WholesaleRetail: parseInt(d["Wholesale and retail trade, hotels and restaurants"].replace(/,/g, ''), 10),
+		Sector_TransportCommunication: parseInt(d["Transport and communication"].replace(/,/g, ''), 10),
+		Sector_FinancialBusiness: parseInt(d["Financial and business services"].replace(/,/g, ''), 10),
+		Sector_PublicAdmin: parseInt(d["Public admin, education and health"].replace(/,/g, ''), 10),
+		Sector_OtherServices: parseInt(d["Other services"].replace(/,/g, ''), 10),
+		Occupation_Managers: parseInt(d["Managers, Directors And Senior Officials"].replace(/,/g, ''), 10),
+		Occupation_Professional: parseInt(d["Professional Occupations"].replace(/,/g, ''), 10),
+		Occupation_AssociateProfessional: parseInt(d["Associate Professional And Technical Occupations"].replace(/,/g, ''), 10),
+		Occupation_AdminSecretarial: parseInt(d["Administrative And Secretarial Occupations"].replace(/,/g, ''), 10),
+		Occupation_SkilledTrades: parseInt(d["Skilled Trades Occupations"].replace(/,/g, ''), 10),
+		Occupation_CaringLeisure: parseInt(d["Caring, Leisure And Other Service Occupations"].replace(/,/g, ''), 10),
+		Occupation_SalesCustomerService: parseInt(d["Sales And Customer Service Occupations"].replace(/,/g, ''), 10),
+		Occupation_PlantMachineOperatives: parseInt(d["Process, Plant And Machine Operatives"].replace(/,/g, ''), 10),
+		Occupation_Elementary: parseInt(d["Elementary Occupations"].replace(/,/g, ''), 10),
+		Employee: parseInt(d["Employee"].replace(/,/g, ''), 10),
+		Self_Employed: parseInt(d["Self-Employed"].replace(/,/g, ''), 10),
+		Education_DegreeOrEquivalent: parseInt(d["Degree or equivalent"].replace(/,/g, ''), 10),
+		Education_Higher: parseInt(d["Higher education"].replace(/,/g, ''), 10),
+		Education_GCE_A_Level: parseInt(d["GCE A level or equivalent"].replace(/,/g, ''), 10),
+		Education_GCSE_A_C: parseInt(d["GCSE grades A*-C or equivalent"].replace(/,/g, ''), 10),
+		Education_OtherQualification: parseInt(d["Other qualification"].replace(/,/g, ''), 10),
+		Education_NoQualification: parseInt(d["No qualification"].replace(/,/g, ''), 10),
+		Education_DontKnow: parseInt(d["Don't know"].replace(/,/g, ''), 10)
+	}
+}).then(data => {
+	makeCharts(data)
+});
 
 // ==== main makeCharts function to render all charts
-function makeCharts(error, londonCsv, crimeCsv, geoJson) {
-
-	// format d3.locale  
-	var GB = d3.locale(GBLocale);
-
-	// londonCsv format data
-	londonCsv.forEach(function(d) {
-		d.GLA_Population_Estimate = +d.GLA_Population_Estimate;
-		d.Proportion_of_resident_population_born_abroad = +d.Proportion_of_resident_population_born_abroad;
-		d.Median_House_Price = +d.Median_House_Price;
-		d.Gross_Annual_Pay = +d.Gross_Annual_Pay;
-		d.Proportion_of_largest_migrant_population = +d.Proportion_of_largest_migrant_population;
-		d.Area_that_is_Greenspace = +d.Area_that_is_Greenspace;
-		d.Childhood_Obesity = +d.Childhood_Obesity;
-		d.Proportion_of_working_age_with_degree_or_equivalent_and_above = +d.Proportion_of_working_age_with_degree_or_equivalent_and_above;
-		d.Crime_rates_per_thousand_population = +d.Crime_rates_per_thousand_population;
-	});
-
-	// crimeCsv format data 
-	crimeCsv.forEach(function(d) {
-		d.Area_Name = String(d.Area_Name);
-		d.Major_Text = String(d.Major_Text);
-		d.Crime_Count = +d.Crime_Count;
-	});
+function makeCharts(regionalCsv) {
 
 
-	// crossfilter csv data
-	var cf = crossfilter(londonCsv);
-	var cf2 = crossfilter(crimeCsv);
-
-	// reuseable custom reduce average function 
-	function reduceAvg(dimension, type) {
-		return dimension.groupAll().reduce(
-			function(p, v) {
-				p.count++;
-				p.total += v[type];
-				p.average = p.total / p.count;
-				return p;
-			},
-
-			function(p, v) {
-				p.count--;
-				p.total -= v[type];
-				p.average = p.total / p.count;
-				return p;
-			},
-
-			function() {
-				return {
-					count: 0,
-					total: 0,
-					average: 0
-				};
-			}
-		);
-	}
-
-	// groupAll averages groups
-	var bornAbroadGroup = reduceAvg(cf, "Proportion_of_resident_population_born_abroad");
-	var housePriceGroup = reduceAvg(cf, "Median_House_Price");
-	var avgPayGroup = reduceAvg(cf, "Gross_Annual_Pay");
-
-	// multi-use dimensions
-	var boroughDim = cf.dimension(dc.pluck("Area_name"));
+	// Move the color scale and regions array outside of the function to make them accessible to other charts
+	const regions = Array.from(new Set(regionalCsv.map(d => d.Region_Name))).sort();
+	const colors = d3.scale.ordinal()
+		.domain(regions)
+		.range(d3.quantize(d3.interpolateRainbow, regions.length));
 
 	// all charts
-	populationNd(cf);
-	bornAbroadNd(cf, bornAbroadGroup);
-	avgHousePrcNd(cf, housePriceGroup, GB);
-	annualPayNd(cf, avgPayGroup, GB);
-	BAMEBar(cf);
-	nonEnglishBar(cf);
-	migrantPieChart(cf);
-	obesityScatter(cf);
-	avgHousePrcRow(cf, boroughDim, GB);
-	genderPayComposite(cf, boroughDim);
-	crimeRatesChoro(cf2, geoJson);
-	crimesRowChart(cf2);
+	PopulationText("199999");
+	EmploymentPopulationText("199999");
 
-	dc.renderAll();
+	// TODO: make filters here
+	// avgHousePrcNd(cf, housePriceGroup, GB);
+	// annualPayNd(cf, avgPayGroup, GB);
+
+	//SectorDataBarChart
+	SectorDataBarChart(regionalCsv);
+
+	// OccupationSpiderChart
+	OccupationSpiderChart(regionalCsv);
+
+	//EducationalLevelLineChart
+	EducationalLevelLineChart(regionalCsv);
+
+	// ```
+	// Entrepreneur chart Start
+	// ```
+	Entrepreneur_Data = Calculate_entrepreneur(regionalCsv,null);
+	//EntrepreneurPieChart
+	EntrepreneurPieChart(Entrepreneur_Data, colors);
+
+	// ```
+	// Entrepreneur chart End
+	// ```
+
+	// MapChart
+	RegionsMapChart(regionalCsv);
+
+}
+
+function Calculate_entrepreneur(regionalCsv, region){
+
+	// general view ( no region)
+	if (region == null){
+	const employeeSum = regionalCsv.reduce((sum, data) => sum + data.Employee, 0);
+	const selfEmployeeSum = regionalCsv.reduce((sum, data) => sum + data.Self_Employed, 0);
+	const return_data = [
+		{ label: "Employee", value: employeeSum},
+		{ label: "Self_Employed", value: selfEmployeeSum}
+	];
+	return return_data
+
+	}
+// TODO: calculate for the region 
+
 }
 
 // ==== total population number display
-function populationNd(cf) {
-	// group to find population estimate
-	var popGroup = cf.groupAll().reduceSum(function(d) {
-		return d.GLA_Population_Estimate;
-	});
-	var popNd = dc.numberDisplay("#nd-population");
-
-	popNd
-		.group(popGroup)
-		.valueAccessor(function(d) {
-			return d;
-		});
+function PopulationText(data) {
+	// send text to the population
+	d3.select("#nd-population")
+		.append("span")
+		.text(data)
 }
 
 // ==== % population born abroad number display 
-function bornAbroadNd(cf, bornAbroadGroup) {
-
-	var abroadNd = dc.numberDisplay("#nd-born-abroad");
-
-	abroadNd
-		.formatNumber(d3.format(".0%")) // format number as percentage
-		.group(bornAbroadGroup) // group brought in from makeCharts()
-		.valueAccessor(function(d) {
-			return d.average / 100; // divide by 100 to allow % number format
-		});
+function EmploymentPopulationText(data) {
+	// send text to employement population
+	d3.select("#nd-born-abroad")
+		.append("span")
+		.text(data)
 }
 
-// ==== average house price number display
-function avgHousePrcNd(cf, housePriceGroup, GB) {
 
-	var housePriceNd = dc.numberDisplay("#nd-avg-house-prc");
 
-	housePriceNd
-		.formatNumber(GB.numberFormat("$,.0f")) // format number as £1000s
-		.group(housePriceGroup) // group brought in from makeCharts()
-		.valueAccessor(function(d) {
-			return d.average;
-		});
+// ==== Sectors 
+function SectorDataBarChart(regionalCsv) {
+	d3.select("#barchart-sector-data")
 }
 
-// ==== gross annual pay number display
-function annualPayNd(cf, avgPayGroup, GB) {
-
-	var avgPayNd = dc.numberDisplay("#nd-avg-pay");
-
-	avgPayNd
-		.formatNumber(GB.numberFormat("$,.0f")) // format number as £1000s
-		.group(avgPayGroup) // group brought in from makeCharts()
-		.valueAccessor(function(d) {
-			return d.average;
-		});
-}
-
-// ==== proportion of population that are BAME bar chart
-function BAMEBar(cf) {
-	// dimension on borough names, group on BAME percentage
-	var BAMEBoroughDim = cf.dimension(dc.pluck("Area_name"));
-	var BAMEGroup = BAMEBoroughDim.group().reduceSum(dc.pluck("Proportion_of_population_from_BAME_groups"));
-	var BAMEBarChart = dc.barChart("#bar-BAME");
-
-	BAMEBarChart
-		.width(600)
-		.height(200)
-		.useViewBoxResizing(true) // adds responsiveness
-		.gap(1)
-		.title(function(d) {
-			return `${d.key}: ${d.value}%`;
-		})
-		.group(BAMEGroup)
-		.dimension(BAMEBoroughDim)
-		.margins({
-			top: 10,
-			right: 30,
-			bottom: 85,
-			left: 40
-		})
-		.x(d3.scale.ordinal())
-		.xUnits(dc.units.ordinal);
+// ==== Regions maps
+function RegionsMapChart(regionalCsv) {
+	d3.select("#map-crimes");
 
 }
 
-// ==== proportion of population whos main language is not English bar chart
-function nonEnglishBar(cf) {
-	// dimension on borough names, group on non-english speaking percentage
-	var engLangDim = cf.dimension(dc.pluck("Area_name"));
-	var nonEnglishGroup = engLangDim.group().reduceSum(dc.pluck("Proportion_people_whose_main_language_is_not_English"));
-	var nonEnglishBarChart = dc.barChart("#bar-english-lng");
-
-	nonEnglishBarChart
-		.width(600)
-		.height(200)
-		.useViewBoxResizing(true) // adds responsiveness
-		.gap(1)
-		.title(function(d) {
-			return `${d.key}: ${d.value}%`;
-		})
-		.group(nonEnglishGroup)
-		.dimension(engLangDim)
-		.margins({
-			top: 10,
-			right: 30,
-			bottom: 85,
-			left: 40
-		})
-		.x(d3.scale.ordinal())
-		.xUnits(dc.units.ordinal);
-
-}
-
-// ==== largest migrant population by country of birth pie chart
-function migrantPieChart(cf) {
-	// dimension on migrant countries, group for total of migrant country occurences 
-	var migrantCountryDim = cf.dimension(dc.pluck('Largest_migrant_population_by_country_of_birth'));
-	var migrantGroup = migrantCountryDim.group();
-	var migrantPieChart = dc.pieChart("#pie-migrant-by-birth");
-
-	migrantPieChart
-		.height(210)
-		.radius(70)
-		.transitionDuration(1000)
-		.dimension(migrantCountryDim)
-		.group(migrantGroup)
-		.useViewBoxResizing(true) // adds responsiveness
-		.externalLabels(30)
-		.drawPaths(true)
-		.cap(8)
-		.minAngleForLabel(0)
-		.title(function(d) {
-			return `${d.key} tops the migrant
-            population in ${d.value} boroughs`;
-		});
-}
-
-// ==== crimes per 1000 popluation choropleth map
-// choropleth map learnt from LinkedIn Learning - dc.js course
-function crimeRatesChoro(cf2, geoJson) {
-	// dimension on borough names, group on crime count
-	var areaDim = cf2.dimension(dc.pluck("Area_Name"));
-	var crimesRateGroup = areaDim.group().reduceSum(dc.pluck("Crime_Count"));
-	// set centre of geoJson map coordinates using d3.geo.centroid to allow for translating 
-	var centre = d3.geo.centroid(geoJson);
-	// set projection to allow for lat and long of geoJson to be drawn in the browser
-	var projection = d3.geo.mercator() // default projection is geo.AlbersUSA which does not work for UK geoJson 
-		.center(centre)
-		.scale(15000) // scale the map to size 
-		.translate([150, 105]);
-
-	var crimesChoroMap = dc.geoChoroplethChart("#map-crimes");
-
-	crimesChoroMap
-		.width(350)
-		.height(200)
-		.dimension(areaDim)
-		.group(crimesRateGroup)
-		.useViewBoxResizing(true)
-		.title(function(d) {
-			return `${d.key} reported ${d3.format(",")(d.value)} offences`;
-		})
-		.colors(d3.scale.quantize().range(colorbrewer.Blues[9]).domain([0, 55000]))
-		.projection(projection)
-		.overlayGeoJson(geoJson.features, "area", function(d) {
-			return d.properties.LAD13NM;
-		});
-
-	/**
-	 * Create a d3.js color legend with a yAxis 
-	 * Learnt from https://www.visualcinnamon.com/2016/05/smooth-color-legend-d3-svg-gradient.html
-	 */
-	crimesChoroMap.on("pretransition", function(chart) {
-		// use color brewers "Blues" scheme
-		var colorArray = colorbrewer.Blues[9];
-		// set height and width for color legend 
-		var width = 10;
-		var height = 170;
-
-		/**
-		 * Append a defs element to svg to render rects
-		 * Append an svg linearGradient element 
-		 */
-		var svg = chart.select("svg");
-
-		var grad = svg.append("defs")
-			.append("linearGradient")
-			.attr("id", "grad")
-			.attr("x1", "0%")
-			.attr("x2", "0%")
-			.attr("y1", "100%")
-			.attr("y2", "0%");
-
-		// Set linearGradient stop positions to colorArray index
-		grad.selectAll("stop")
-			.data(colorArray)
-			.enter()
-			.append("stop")
-			.attr("offset", function(d, i) {
-				return (i / colorArray.length) * 100 + "%";
-			})
-			.attr("stop-color", function(d) {
-				return d;
-			});
-
-		// set margin object for color legend positioning 
-		var margin = {
-			left: 280,
-			right: 0,
-			top: 25,
-			bottom: 0
-		};
-
-		// create legend group to control color legend svg and yAxis position together 
-		var legendGroup = svg.append("g")
-			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-		// Append rect and fill with linearGradient styles to legend group 
-		legendGroup.append("rect")
-			.attr("x", "0")
-			.attr("y", "0")
-			.attr("width", width)
-			.attr("height", height)
-			.attr("fill", "url(#grad)");
-
-		// create linear scale for crimes 
-		var y = d3.scale.linear()
-			.domain([60000, 0])
-			.range([0, height]);
-		// create axis left for color legend
-		var yAxis = d3.svg.axis()
-			.scale(y)
-			.ticks(10)
-			.innerTickSize(4)
-			.orient("right");
-		legendGroup.append("g")
-			.attr("class", "axis y")
-			.attr("transform", "translate(10, 0)")
-			.call(yAxis);
-	});
-}
-
-// ==== crime category row chart
-function crimesRowChart(cf2) {
-	// dimension on type of crime, group on crime count
-	var crimeTypeDim = cf2.dimension(dc.pluck("Major_Text"));
-	var countGroup = crimeTypeDim.group().reduceSum(dc.pluck("Crime_Count"));
-	var crimesRow = dc.rowChart("#row-crimes");
-
-	crimesRow
-		.width(500)
-		.height(220)
-		.margins({
-			top: 20,
-			right: 20,
-			bottom: 45,
-			left: 150
-		})
-		.gap(1)
-		.fixedBarHeight(16)
-		.labelOffsetX(-130)
-		.transitionDuration(500)
-		.renderTitleLabel(true)
-		.title(function(d) {
-			return d3.format(",")(d.value);
-		})
-		.elasticX(true)
-		.useViewBoxResizing(true)
-		.othersGrouper(null)
-		.dimension(crimeTypeDim)
-		.group(countGroup);
-
-}
 
 // correlation between obesity rates and areas of greenspace(parks)
-function obesityScatter(cf) {
+function EducationalLevelLineChart(regionalCsv) {
+	d3.select("#line-educational-level");
 
-	// dimension on three fields for scatter plot 
-	var obesityGreenspaceDim = cf.dimension(function(d) {
-		return [d.Area_that_is_Greenspace, d.Childhood_Obesity, d.Area_name];
-	});
-
-	var obesityGroup = obesityGreenspaceDim.group();
-
-	// create fake dimension to find min and max values for scales
-	var fakeObesityDim = cf.dimension(function(d) {
-		return d.Childhood_Obesity;
-	});
-	// find min and max values for x linear scales
-	var OBmin = fakeObesityDim.bottom(1)[0].Childhood_Obesity;
-	var OBmax = fakeObesityDim.top(1)[0].Childhood_Obesity;
-
-	var obesityScatterPlot = dc.scatterPlot("#scatter-obesity");
-
-	obesityScatterPlot
-		.width(370)
-		.height(220)
-		.dimension(obesityGreenspaceDim)
-		.group(obesityGroup)
-		.useViewBoxResizing(true)
-		.brushOn(false)
-		.margins({
-			top: 10,
-			right: 30,
-			bottom: 35,
-			left: 35
-		})
-		.x(d3.scale.linear().domain([OBmin, (OBmax + 10)]))
-		.yAxisLabel('Childhood Obesity (%)')
-		.xAxisLabel('Area That Is Greenspace (%)')
-		.symbolSize(10)
-		.clipPadding(15)
-		.title(function(d) {
-			return `${d.key[2]}
-            Greenspace Area: ${d.key[0]}%
-            Childhood Obesity Rate: ${d.key[1]}%`;
-
-		});
 }
 
-// average house price row chart
-function avgHousePrcRow(cf, boroughDim, GB) {
+// Pie Chart for 2 columns of the data
+function EntrepreneurPieChart(data, color) {
 
-	// group on median house price and divide by 1000 to reduce tick text size
-	var avgHousePrcGroup = boroughDim.group().reduceSum(function(d) {
-		return Math.round(d.Median_House_Price / 1000);
-	});
+	const width = 200;
+	const height = 170;
+	const outerRadius = Math.min(width, height) / 2 - 10;
 
-	var avgPrcRow = dc.rowChart("#row-avg-house");
+	// Create the pie layout and arc generator.
+	const pie = d3.pie()
+		.sort(null)
+		.value(d => d.value);
 
-	avgPrcRow
-		.width(350)
-		.height(230)
-		.margins({
-			top: 20,
-			right: 30,
-			bottom: 45,
-			left: 20
-		})
-		.gap(1)
-		.fixedBarHeight(15)
-		.cap(10)
-		.useViewBoxResizing(true)
-		.othersGrouper(null)
-		.dimension(boroughDim)
-		.group(avgHousePrcGroup)
-		.title(function(d) {
-			return `${d.key}: ${GB.numberFormat("$,.0f")(d.value * 1000)}`;
-		});
+	const arc = d3.arc()
+		.innerRadius(0)
+		.outerRadius(outerRadius);
+
+	const labelRadius = arc.outerRadius()() * 0.8;
+
+	// A separate arc generator for labels.
+	const arcLabel = d3.arc()
+		.innerRadius(labelRadius)
+		.outerRadius(labelRadius);
+
+	
+
+	const arcs = pie(data);
+
+	// pie_cart = d3.select("#pie-chart-entrepreneur");
+	// Create the SVG container.
+	const svg = d3.select("#pie-chart-entrepreneur").append("svg")
+		.attr("width", width)
+		.attr("height", height)
+		.attr("viewBox", [-width / 2, -height / 2, width, height])
+		.attr("style", "max-width: 100%; height: auto; font: 10px sans-serif;");
+
+	// Add a sector path for each value.
+	svg.append("g")
+		.attr("stroke", "white")
+		.selectAll()
+		.data(arcs)
+		.join("path")
+		.attr("fill", d => color(d.data.label))
+		.attr("d", arc)
+		.append("title")
+		.text(d => `${d.data.label.toLocaleString("en-US")}: ${d.data.value}: `);
+
+	// Create a new arc generator to place a label close to the edge.
+	// The label shows the value if there is enough room.
+	svg.append("g")
+		.attr("text-anchor", "middle")
+		.selectAll()
+		.data(arcs)
+		.join("text")
+		.attr("transform", d => `translate(${arcLabel.centroid(d)})`)
+		.call(text => text.append("tspan")
+			.attr("y", "-0.4em")
+			.attr("font-weight", "bold")
+			.text(d => d.data.label))
+		.call(text => text.filter(d => (d.endAngle - d.startAngle) > 0.25).append("tspan")
+			.attr("x", 0)
+			.attr("y", "0.7em")
+			.attr("fill-opacity", 0.7)
+			.text(d => d.data.value.toLocaleString("en-US")));
+
+	// extract which is the highest value and add it to html id id="pie-chart-entrepreneur-text"
+	var highest = 0;
+	var highest_label = "";
+	for (var i = 0; i < data.length; i++) {
+		if (data[i].value > highest) {
+			highest = data[i].value;
+			highest_label = data[i].label;
+		}
+	}
+	d3.select("#pie-chart-entrepreneur-text")
+		.append("span")
+		.text(highest_label === "Employee" ? "More Employees are hired than Self-Employeed" : "This Region has more Self-Employeed! It's a to-go for entrepreneurnship!")
+		.style("color", color(highest_label))
+		.style("font-weight", "bold")
+		.style("font-size", "1.2em")
+		.style("text-transform", "capitalize")
+		.style("margin-left", "1em");
+
+	console.log(highest_label);
 }
 
 // proportion of working age people with a degree row chart
-function genderPayComposite(cf, boroughDim) {
-	// group on male and female pay
-	var maleGroup = boroughDim.group().reduceSum(dc.pluck("Gross_Annual_Pay_Male"));
-	var femaleGroup = boroughDim.group().reduceSum(dc.pluck("Gross_Annual_Pay_Female"));
-	var employCompChart = dc.compositeChart("#line-gender-pay");
+function OccupationSpiderChart(regionalCsv) {
 
-	employCompChart
-		.width(350)
-		.height(230)
-		.useViewBoxResizing(true)
-		.margins({
-			top: 20,
-			right: 40,
-			bottom: 25,
-			left: 40
-		})
-		.dimension(boroughDim)
-		.group(maleGroup)
-		.x(d3.scale.ordinal())
-		.xUnits(dc.units.ordinal)
-		.xAxisLabel("Across London")
-		.legend(dc.legend().x(60).y(150).itemHeight(13).gap(5))
-		.compose([
-			dc.lineChart(employCompChart)
-                .group(maleGroup, "Male Average Pay")
-                .interpolate("bundle")
-                .colors("red"),
-			dc.lineChart(employCompChart)
-                .group(femaleGroup, "Female Average Pay")
-                .interpolate("bundle")
-                .colors("green")
-        ]);
-        
-	// set yAxis tick format
-	employCompChart.yAxis()
-		.ticks(8)
-		.tickFormat(function(v) {
-			return v / 1000 + "k";
-		});
+	d3.select("#spider_occupation_chart")
+
+
 
 }
