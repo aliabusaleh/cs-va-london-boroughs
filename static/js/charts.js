@@ -1,3 +1,7 @@
+let originalData = [];
+
+currentRegion = null;
+currentRegion = null;
 
 d3.csv("static/data/Final_data_Regional_Level.csv", d => {
 	return {
@@ -35,12 +39,21 @@ d3.csv("static/data/Final_data_Regional_Level.csv", d => {
 		Education_DontKnow: parseInt(d["Don't know"].replace(/,/g, ''), 10)
 	}
 }).then(data => {
+	originalData = data;
 	makeCharts(data)
 });
 
-// ==== main makeCharts function to render all charts
-function makeCharts(regionalCsv) {
 
+function filterdatabyRegion(region) {
+	console.log("hello from charts!");
+	console.log(originalData);
+	console.log(region);
+}
+
+
+
+// ==== main makeCharts function to render all charts
+function makeCharts(regionalCsv, region) {
 
 	// Move the color scale and regions array outside of the function to make them accessible to other charts
 	const regions = Array.from(new Set(regionalCsv.map(d => d.Region_Name))).sort();
@@ -48,9 +61,16 @@ function makeCharts(regionalCsv) {
 		.domain(regions)
 		.range(d3.quantize(d3.interpolateRainbow, regions.length));
 
+
+
+	// get the population summation from regionalCsv
+	const populationSum = region ? regionalCsv.filter(data => data.Region_Name === region).reduce((sum, data) => sum + data.Population, 0) : regionalCsv.reduce((sum, data) => sum + data.Population, 0);
 	// all charts
-	PopulationText("199999");
-	EmploymentPopulationText("199999");
+	PopulationText(populationSum);
+	// get the employment population summation from regionalCsv
+	const employmentPopulationSum = region ? regionalCsv.filter(data => data.Region_Name === region).reduce((sum, data) => sum + data.Employment_Population, 0): regionalCsv.reduce((sum, data) => sum + data.Employment_Population, 0);
+	console.log(employmentPopulationSum);
+	EmploymentPopulationText(employmentPopulationSum);
 
 	// TODO: make filters here
 	// avgHousePrcNd(cf, housePriceGroup, GB);
@@ -63,12 +83,12 @@ function makeCharts(regionalCsv) {
 	OccupationSpiderChart(regionalCsv);
 
 	//EducationalLevelLineChart
-	EducationalLevelLineChart(regionalCsv, colors, region = "London");
+	EducationalLevelLineChart(regionalCsv, colors, region);
 
 	// ```
 	// Entrepreneur chart Start
 	// ```
-	Entrepreneur_Data = Calculate_entrepreneur(regionalCsv, "London");
+	Entrepreneur_Data = Calculate_entrepreneur(regionalCsv, region);
 	//EntrepreneurPieChart
 	EntrepreneurPieChart(Entrepreneur_Data, colors);
 
@@ -106,6 +126,8 @@ function Calculate_entrepreneur(regionalCsv, region) {
 
 // ==== total population number display
 function PopulationText(data) {
+	// delete old text 
+	d3.select("#nd-population").selectAll("span").remove();
 	// send text to the population
 	d3.select("#nd-population")
 		.append("span")
@@ -114,6 +136,8 @@ function PopulationText(data) {
 
 // ==== % population born abroad number display 
 function EmploymentPopulationText(data) {
+	// delete old text
+	d3.select("#nd-born-abroad").selectAll("span").remove();
 	// send text to employement population
 	d3.select("#nd-born-abroad")
 		.append("span")
@@ -134,28 +158,102 @@ function RegionsMapChart(regionalCsv) {
 }
 
 
+function updatecharts(region = null, nationality = null, sector = null, occupation = null, education = null, entrepreneur = null) {
+	
+	console.log("hello from updatecharts!");
+	console.log(region);
+	console.log(nationality);
+	// # TODO handle the issue of the map
+	d3.selectAll("svg").remove();
+
+	newData = originalData;
+	// filter data for specific region if region is not null if null, then newData = originalData
+	if (region != null) {
+		newData = newData.filter(d => d.Region_Name === region);
+	}
+	// filter data for specific nationality if nationality is not null
+	if(nationality != null){
+		newData = newData.filter(d => d.Nationality === nationality);
+	}
+	// filter data for specific sector if sector is not null
+	if(sector != null){
+		newData = newData.filter(d => d.Sector === sector);
+	}
+	// filter data for specific occupation if occupation is not null
+	if(occupation != null){
+		newData = newData.filter(d => d.Occupation === occupation);
+	}
+	// filter data for specific education if education is not null
+	if(education != null){
+		newData = newData.filter(d => d.Education === education);
+	}
+	// filter data for specific entrepreneur if entrepreneur is not null
+	if(entrepreneur != null){
+		newData = newData.filter(d => d.Entrepreneur === entrepreneur);
+	}
+	// call makeCharts with the new data
+	console.log(newData);
+	makeCharts(newData, currentRegion);
+}
+
 // correlation between obesity rates and areas of greenspace(parks)
 function EducationalLevelLineChart(regionalCsv, color, region) {
 
 	// Specify the chart’s dimensions.
-	const width = 928 / 3;
-	const height = 500 / 3;
+	const width = window.screen.width / 4.5;
+	const height = window.screen.height / 4.5;
 	const marginTop = 2;
 	const marginRight = 1;
 	const marginBottom = 30;
 	const marginLeft = 80;
-
-	// filter data for specific region 
-	const filteredData = regionalCsv.filter(d => d.Region_Name === region);
-
 	const educationLevels = ["Degree or equivalent", "Higher education", "GCE A level or equivalent", "GCSE grades A*-C or equivalent", "Other qualification", "No qualification", "Don't know"];
-	const educationalLevelsLabels = ['Education_DegreeOrEquivalent',
+	const educationalLevelsLabels = [
+		'Education_DegreeOrEquivalent',
 		'Education_Higher',
 		'Education_GCE_A_Level',
 		'Education_GCSE_A_C',
 		'Education_OtherQualification',
 		'Education_NoQualification',
-		'Education_DontKnow']
+		'Education_DontKnow'
+	  ];
+	  
+
+	filteredData = regionalCsv;
+	aggregatedData = filteredData
+	if (region != null) {
+		// filter data for specific region 
+	filteredData = regionalCsv.filter(d => d.Region_Name === region);
+	}
+	else {
+	// get the total of all regions of the educationals levels by nationality by level of education
+	  
+	  const aggregatedData = [{
+		"Region_Name": "Aggregated",
+		"Nationality": "Immigrants", // Update with your specific label for nationality
+		...educationalLevelsLabels.reduce((acc, level) => ({ ...acc, [level]: 0 }), {})
+	  }];
+	  
+	  filteredData.forEach(entry => {
+		const nationality = entry.Nationality;
+	  
+		const existingEntry = aggregatedData.find(item => item.Nationality === nationality);
+	  
+		if (existingEntry) {
+		  educationalLevelsLabels.forEach(level => {
+			existingEntry[level] += +entry[level];
+		  });
+		} else {
+		  const newEntry = {
+			"Region_Name": "Aggregated",
+			"Nationality": nationality,
+			...educationalLevelsLabels.reduce((acc, level) => ({ ...acc, [level]: +entry[level] }), {})
+		  };
+		  aggregatedData.push(newEntry);
+		}
+	  });
+	  filteredData = aggregatedData;
+	}
+	
 	const svg = d3.select("#line-educational-level").append("svg")
 		.attr("width", width)
 		.attr("height", height);
@@ -185,6 +283,23 @@ function EducationalLevelLineChart(regionalCsv, color, region) {
 			.attr("stroke", colors(d.Nationality))
 			.attr("stroke-width", 2)
 			.attr("d", line)
+			// add class with nationality name
+			.attr("class", d.Nationality)
+			.on("mouseover", function (d) {
+				d3.select(this)
+					.attr("stroke-width", 5)
+					.style("cursor", "pointer");
+			})
+			.on("mouseout", function (d) {
+				d3.select(this)
+					.attr("stroke-width", 2)
+					.style("cursor", "default");
+			})
+						// add on click event to the line
+			.on("click", function (d) {
+				console.log(this.className.baseVal);
+				updatecharts(region=currentRegion, nationality=this.className.baseVal);
+			})
 	});
 
 	// Add axes

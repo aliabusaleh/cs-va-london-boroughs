@@ -65,6 +65,7 @@ function highlightFeature(e) {
     layer.bringToFront();
 
     info.update(layer.feature.properties);
+
 }
 
 /* global statesData */
@@ -80,6 +81,8 @@ function resetHighlight(e) {
 
 function zoomToFeature(e) {
     map.fitBounds(e.target.getBounds());
+    // Print the name of the region to the console
+    filterdatabyRegion(e.target.feature.properties.name);
 }
 
 function onEachFeature(feature, layer) {
