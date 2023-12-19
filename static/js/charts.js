@@ -63,12 +63,12 @@ function makeCharts(regionalCsv) {
 	OccupationSpiderChart(regionalCsv);
 
 	//EducationalLevelLineChart
-	EducationalLevelLineChart(regionalCsv,colors, region = "London");
+	EducationalLevelLineChart(regionalCsv, colors, region = "London");
 
 	// ```
 	// Entrepreneur chart Start
 	// ```
-	Entrepreneur_Data = Calculate_entrepreneur(regionalCsv, null);
+	Entrepreneur_Data = Calculate_entrepreneur(regionalCsv, "London");
 	//EntrepreneurPieChart
 	EntrepreneurPieChart(Entrepreneur_Data, colors);
 
@@ -83,18 +83,24 @@ function makeCharts(regionalCsv) {
 
 function Calculate_entrepreneur(regionalCsv, region) {
 
+	filteredData = [];
 	// general view ( no region)
 	if (region == null) {
-		const employeeSum = regionalCsv.reduce((sum, data) => sum + data.Employee, 0);
-		const selfEmployeeSum = regionalCsv.reduce((sum, data) => sum + data.Self_Employed, 0);
-		const return_data = [
-			{ label: "Employee", value: employeeSum },
-			{ label: "Self_Employed", value: selfEmployeeSum }
-		];
-		return return_data
+		filteredData = regionalCsv
+	}
+	// TODO: calculate for the region
+	else {
+		filteredData = regionalCsv.filter(d => d.Region_Name === region)
 
 	}
-	// TODO: calculate for the region 
+
+	const employeeSum = filteredData.reduce((sum, data) => sum + data.Employee, 0);
+	const selfEmployeeSum = filteredData.reduce((sum, data) => sum + data.Self_Employed, 0);
+	const return_data = [
+		{ label: "Employee", value: employeeSum },
+		{ label: "Self_Employed", value: selfEmployeeSum }
+	];
+	return return_data
 
 }
 
@@ -130,96 +136,96 @@ function RegionsMapChart(regionalCsv) {
 
 // correlation between obesity rates and areas of greenspace(parks)
 function EducationalLevelLineChart(regionalCsv, color, region) {
-	
+
 	// Specify the chart’s dimensions.
-    const width = 928/3;
-    const height = 500/3;
-    const marginTop = 2;
-    const marginRight = 1;
-    const marginBottom = 30;
-    const marginLeft = 80;
-  
-    // filter data for specific region 
-    const filteredData = regionalCsv.filter(d => d.Region_Name === region);
-  
-    const educationLevels  = ["Degree or equivalent", "Higher education", "GCE A level or equivalent", "GCSE grades A*-C or equivalent", "Other qualification", "No qualification", "Don't know"];
-    const educationalLevelsLabels = ['Education_DegreeOrEquivalent',
-	'Education_Higher',
-	'Education_GCE_A_Level',
-	'Education_GCSE_A_C',
-	'Education_OtherQualification',
-	'Education_NoQualification',
-	'Education_DontKnow']
-    const svg = d3.select("#line-educational-level").append("svg")
-        .attr("width", width)
-        .attr("height", height);
+	const width = 928 / 3;
+	const height = 500 / 3;
+	const marginTop = 2;
+	const marginRight = 1;
+	const marginBottom = 30;
+	const marginLeft = 80;
 
-    const xScale = d3.scaleBand()
-        .domain(educationLevels)
-        .range([marginLeft, width - marginRight])
-        .paddingInner(1) // edit the inner padding value in [0,1]
-    	.paddingOuter(0.5) // edit the outer padding value in [0,1]
+	// filter data for specific region 
+	const filteredData = regionalCsv.filter(d => d.Region_Name === region);
 
-    const yScale = d3.scaleLinear()
-        .domain([0, d3.max(filteredData, d => d3.max(educationalLevelsLabels.map(key => +d[key])))])
-        .range([height - marginBottom, marginTop]);
+	const educationLevels = ["Degree or equivalent", "Higher education", "GCE A level or equivalent", "GCSE grades A*-C or equivalent", "Other qualification", "No qualification", "Don't know"];
+	const educationalLevelsLabels = ['Education_DegreeOrEquivalent',
+		'Education_Higher',
+		'Education_GCE_A_Level',
+		'Education_GCSE_A_C',
+		'Education_OtherQualification',
+		'Education_NoQualification',
+		'Education_DontKnow']
+	const svg = d3.select("#line-educational-level").append("svg")
+		.attr("width", width)
+		.attr("height", height);
+
+	const xScale = d3.scaleBand()
+		.domain(educationLevels)
+		.range([marginLeft, width - marginRight])
+		.paddingInner(1) // edit the inner padding value in [0,1]
+		.paddingOuter(0.5) // edit the outer padding value in [0,1]
+
+	const yScale = d3.scaleLinear()
+		.domain([0, d3.max(filteredData, d => d3.max(educationalLevelsLabels.map(key => +d[key])))])
+		.range([height - marginBottom, marginTop]);
 
 	const line = d3.line()
 		.x((_, i) => xScale(educationLevels[i]))
 		.y(d => yScale(+d));
 
-    const colors = d3.scaleOrdinal()
-        .domain(filteredData.map(d => d.Nationality))
-        .range(d3.schemeCategory10); // Use a categorical color scheme
-	
-		filteredData.forEach(d => {
-			svg.append("path")
-				.datum(educationalLevelsLabels.map(level => d[level]))
-				.attr("fill", "none")
-				.attr("stroke", colors(d.Nationality))
-				.attr("stroke-width", 2)
-				.attr("d", line)
-		});
+	const colors = d3.scaleOrdinal()
+		.domain(filteredData.map(d => d.Nationality))
+		.range(d3.schemeCategory10); // Use a categorical color scheme
 
-		// Add axes
-		svg.append("g")
-			.attr("transform", `translate(0,${height - marginBottom})`)
-			.call(d3.axisBottom(xScale))
-			.selectAll("text")
-			.attr("transform", "rotate(-90)")
-			.attr("dy", "-0.5em")
-			.attr("dx", "-0.7em")
-			.style("text-anchor", "end");
+	filteredData.forEach(d => {
+		svg.append("path")
+			.datum(educationalLevelsLabels.map(level => d[level]))
+			.attr("fill", "none")
+			.attr("stroke", colors(d.Nationality))
+			.attr("stroke-width", 2)
+			.attr("d", line)
+	});
 
-		svg.append("g")
-			.attr("transform", `translate(${marginLeft},0)`)
-			.call(d3.axisLeft(yScale));
-			
+	// Add axes
+	svg.append("g")
+		.attr("transform", `translate(0,${height - marginBottom})`)
+		.call(d3.axisBottom(xScale))
+		.selectAll("text")
+		.attr("transform", "rotate(-90)")
+		.attr("dy", "-0.5em")
+		.attr("dx", "-0.7em")
+		.style("text-anchor", "end");
 
-		// Add legend colors
-		const legend = svg.append("g")
-			.attr("transform", `translate(${width - marginRight - 100}, ${marginTop})`);
+	svg.append("g")
+		.attr("transform", `translate(${marginLeft},0)`)
+		.call(d3.axisLeft(yScale));
 
-		const legendColors = legend.selectAll(".legend-color")
-			.data(filteredData.map(d => d.Nationality))
-			.enter()
-			.append("g")
-			.attr("class", "legend-color")
-			.attr("transform", (d, i) => `translate(0, ${i * 20})`);
 
-		legendColors.append("rect")
-			.attr("width", 10)
-			.attr("height", 10)
-			.attr("fill", colors);
+	// Add legend colors
+	const legend = svg.append("g")
+		.attr("transform", `translate(${width - marginRight - 100}, ${marginTop})`);
 
-		legendColors.append("text")
-			.attr("x", 15)
-			.attr("y", 8)
-			.text(d => d);
+	const legendColors = legend.selectAll(".legend-color")
+		.data(filteredData.map(d => d.Nationality))
+		.enter()
+		.append("g")
+		.attr("class", "legend-color")
+		.attr("transform", (d, i) => `translate(0, ${i * 20})`);
 
-		
-		
-    
+	legendColors.append("rect")
+		.attr("width", 10)
+		.attr("height", 10)
+		.attr("fill", colors);
+
+	legendColors.append("text")
+		.attr("x", 15)
+		.attr("y", 8)
+		.text(d => d);
+
+
+
+
 }
 
 // Pie Chart for 2 columns of the data
