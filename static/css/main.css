@@ -34,7 +34,17 @@ footer {
     -ms-grid-rows: (auto)[11];
         grid-template-rows: repeat(11, auto);
     grid-gap: 10px;
-        grid-template-areas: "population" "born-abroad" "avg-house-prc" "avg-pay" "BAME" "language" "migrant" "crimes" "obesity" "gender-pay" "avg-house";
+        grid-template-areas: "population"
+ "born-abroad"
+ "avg-house-prc"
+ "avg-pay"
+ "BAME"
+ "language"
+ "migrant"
+ "crimes"
+ "obesity"
+ "gender-pay"
+ "avg-house";
   }
 }
 
@@ -48,7 +58,12 @@ footer {
     -ms-grid-rows: (auto)[6];
         grid-template-rows: repeat(6, auto);
     grid-gap: 10px;
-        grid-template-areas: "population population born-abroad born-abroad" "avg-house-prc avg-house-prc avg-pay avg-pay" "BAME BAME language language" ". crimes crimes ." "migrant migrant obesity obesity" "gender-pay gender-pay avg-house avg-house";
+        grid-template-areas: "population population born-abroad born-abroad"
+ "avg-house-prc avg-house-prc avg-pay avg-pay"
+ "BAME BAME language language"
+ ". crimes crimes ."
+ "migrant migrant obesity obesity"
+ "gender-pay gender-pay avg-house avg-house";
   }
 }
 
@@ -62,7 +77,10 @@ footer {
     -ms-grid-rows: (auto)[4];
         grid-template-rows: repeat(4, auto);
     grid-gap: 10px;
-        grid-template-areas: ". population born-abroad avg-house-prc avg-pay ." ". BAME       BAME        language      language ." ". migrant    crimes      crimes        obesity ." ". gender-pay crimes      crimes        avg-house .";
+        grid-template-areas: ". population born-abroad avg-house-prc avg-pay ."
+ ". BAME       BAME        language      language ."
+ ". migrant    crimes      crimes        obesity ."
+ ". gender-pay crimes      crimes        avg-house .";
   }
 }
 
@@ -152,9 +170,13 @@ footer {
 /*----------  crimes grid  ----------*/
 .map-grid {
   display: -ms-grid;
-  display: grid;
+  /* display: grid; */
   -ms-grid-rows: 4rem auto auto auto;
       grid-template-rows: 4rem auto auto auto;
+}
+
+.map{
+  display: table-cell;
 }
 
 /*----------  end of crimes grid  ----------*/
@@ -164,6 +186,13 @@ footer {
   display: grid;
   -ms-grid-columns: auto 6rem;
       grid-template-columns: auto 6rem;
+}
+
+footer p{
+  color: wheat;
+  font-size: 1rem;
+  margin-left: 1%;
+  margin-top: 1%;
 }
 
 /*----------  end of footer grid  ----------*/
@@ -275,6 +304,10 @@ footer {
   #line-gender-pay {
     text-align: center;
   }
+  #line-educational-level{
+    text-align: center;
+    margin-left: 10px;
+  }
 }
 
 @media screen and (min-width: 500px) and (max-width: 767px) {
@@ -283,6 +316,9 @@ footer {
   #row-avg-house svg,
   #line-gender-pay svg {
     max-width: 77vw;
+  }
+  #line-educational-level svg{
+    max-width: 80vw;
   }
 }
 
@@ -314,6 +350,34 @@ footer {
   text-align: center;
   font-size: 1.4rem;
   font-weight: 600;
+}
+#sector-selector{
+  font-size: 1rem;
+  margin-right: 10px;
+  width: 90%;
+}
+
+#sector-selector option{
+  font-size: 1rem;
+  max-width: 50px;
+    min-width: 50px;
+    width: 50px !important;
+}
+#education-selector{
+  font-size: 1rem;
+  margin-right: 10px;
+  width: 90%;
+}
+
+#education-selector option{
+  font-size: 1rem;
+  max-width: 50px;
+    min-width: 50px;
+    width: 50px !important;
+} 
+
+#pie-chart-entrepreneur{
+  margin-left: 18%;
 }
 
 /*----------  end of number displays  ----------*/
@@ -358,6 +422,14 @@ footer {
 }
 
 #line-gender-pay .x.axis .tick {
+  display: none;
+}
+
+#line-educational-level .x.axis text {
+  display: none;
+}
+
+#line-educational-level .x.axis .tick {
   display: none;
 }
 

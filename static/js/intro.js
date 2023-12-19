@@ -8,18 +8,42 @@ $(".intro").on("click", function startIntro(){
         intro.setOptions({
         steps: [
             {
-            element: '#bar-BAME',
-            intro: "Click on a bar in the chart to focus on a particular borough. The same filter will apply to other charts."
+                element: '#population',
+                intro: "This Showes the Population of Employment Ages (16-64) in UK"
             },
             {
-            element: '#bar-BAME',
-            intro: "Click on more boroughs to add to the selection. Or click the reset link to clear.",
+            element: '#born-abroad',
+            intro: "This Shows the Number of Employed People as Both UK Born and Born Abroad"
+            },
+            {
+            element: '#avg-house-prc',
+            intro: "Filter here for your own sector",
             position: 'auto'
             },
             {
-            element: '#crimes',
-            intro: "The Crimes section will not be affected by other charts. Click on the map to see the type of crime which is most prevalent in the row chart below.",
-            position: 'right'
+            element: '#avg-pay',
+            intro: "Filter by your Level of Education",
+            position: 'auto'
+            },
+            {
+                element: '#migrant-by-birth',
+                intro: 'This Bar Chart shows the distribution of emplyment sectors for UK Born and Born Abroad,  Click on it for filtering the data according to your own Sector.'
+            },
+            {
+                element: '#gender-pay',
+                intro: 'This Spider chart shows the distribution of emplyment occupation for UK Born and Born Abroad. Click on it for filtering the data according to your own occupation.'
+            },
+            {
+                element: '#obesity',
+                intro: 'This Line chart shows the relation between the Level of education and the number of People employed. Click on it for filtering the data according to your level of education.'
+            },
+            {
+                element: '#avg-house',
+                intro: 'This pie chart shows the propotion of self-employeed against the employees in the filterd data. Click on it for filtering the data according to your own intrests.'
+            },
+            {
+                element: '#crimes',
+                intro: 'This Map shows the region of UK and the job density on each region. Click on it for filtering the data according to your own intrests.'
             },
             {
             element: '.fa-info-circle',

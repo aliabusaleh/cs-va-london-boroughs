@@ -304,7 +304,7 @@ function EntrepreneurPieChart(data, color) {
 	}
 	d3.select("#pie-chart-entrepreneur-text")
 		.append("span")
-		.text(highest_label === "Employee" ? "More Employees are hired than Self-Employeed" : "This Region has more Self-Employeed! It's a to-go for entrepreneurnship!")
+		// .text(highest_label === "Employee" ? "More Employees are hired than Self-Employeed" : "This Region has more Self-Employeed! It's a to-go for entrepreneurnship!")
 		.style("color", color(highest_label))
 		.style("font-weight", "bold")
 		.style("font-size", "1.2em")

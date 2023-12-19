@@ -36,7 +36,7 @@
 <body>
     <!--****** main dashboard header ******-->
     <header class="navbar-header"> 
-        <h4 class="navbar-heading">London Dashboard</h4>
+        <h4 class="navbar-heading">Perceiving UK immigration Employment</h4>
         <a class="intro"><i class="fas fa-question-circle"></i></a>
         <a data-toggle="modal" data-target="#infoModal"><i class="fas fa-info-circle"></i></a>
     </header>
@@ -50,7 +50,7 @@
                 <div><i class="fas fa-users"></i></div>
             </div>
             <div class="nd-content">
-                <div class="nd-header"><h6>Population</h6></div>
+                <div class="nd-header"><h6>Population (16-64 Years)</h6></div>
                 <div id="nd-population" class="nd-display"></div>
             </div>
         </section>
@@ -62,7 +62,7 @@
                 <div><i class="fas fa-flag"></i></div>
             </div>
             <div class="nd-content">
-                <div class="nd-header"><h6>Born Abroad</h6></div>
+                <div class="nd-header"><h6>Working Employment</h6></div>
                 <div id="nd-born-abroad" class="nd-display"></div>
             </div>
         </section>
@@ -71,11 +71,37 @@
         <!-- average house price number display -->
         <section id="avg-house-prc" class="card nd-grid">
             <div class="nd-icon">
-                <div><i class="fas fa-home"></i></div>
+                <div><i class="fas fa-solid fa-filter"></i></div>
             </div>
             <div class="nd-content">
-                <div class="nd-header"><h6>House Prices</h6></div>
-                <div id="nd-avg-house-prc" class="nd-display"></div>
+                <div class="nd-header"><h6>My Sector</h6></div>
+                <!-- <div id="nd-avg-house-prc" class="nd-display"></div> -->
+                <!-- add selector -->
+                <div class="nd-selector">
+                    <select id="sector-selector" class="nd-display">
+                        <option value="all">All</option>
+                        <option value="Agriculture, forestry and fishing">Agriculture, forestry and fishing</option>
+                        <option value="Mining and quarrying">Mining and quarrying</option>
+                        <option value="Manufacturing">Manufacturing</option>
+                        <option value="Electricity, gas, steam and air conditioning supply">Electricity, gas, steam and air conditioning supply</option>
+                        <option value="Water supply; sewerage, waste management and remediation activities">Water supply; sewerage, waste management and remediation activities</option>
+                        <option value="Construction">Construction</option>
+                        <option value="Wholesale and retail trade; repair of motor vehicles and motorcycles">Wholesale and retail trade; repair of motor vehicles and motorcycles</option>
+                        <option value="Transportation and storage">Transportation and storage</option>
+                        <option value="Accommodation and food service activities">Accommodation and food service activities</option>
+                        <option value="Information and communication">Information and communication</option>
+                        <option value="Financial and insurance activities">Financial and insurance activities</option>
+                        <option value="Real estate activities">Real estate activities</option>
+                        <option value="Professional, scientific and technical activities">Professional, scientific and technical activities</option>
+                        <option value="Administrative and support service activities">Administrative and support service activities</option>
+                        <option value="Public administration and defence; compulsory social security">Public administration and defence; compulsory social security</option>
+                        <option value="Education">Education</option>
+                        <option value="Human health and social work activities">Human health and social work activities</option>
+                        <option value="Arts, entertainment and recreation">Arts, entertainment and recreation</option>
+                        <option value="Other service activities">Other service activities</option>
+                        <option value="Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use">Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use</option>
+                        <option value="Activities of extraterritorial organisations and bodies">Activities of extraterritorial organisations and bodies</option>
+                    </select>
             </div>
         </section>
         <!-- end of average house price number display -->
@@ -83,11 +109,22 @@
         <!-- average income number display -->
         <section id="avg-pay" class="card nd-grid">
             <div class="nd-icon">
-                <div><i class="fas fa-pound-sign"></i></div>
+                <div><i class="fas fa-solid fa-filter"></i></div>
             </div>
             <div class="nd-content">
-                <div class="nd-header"><h6>Avg Income</h6></div>
-                <div id="nd-avg-pay" class="nd-display"></div>
+                <div class="nd-header"><h6>My Level of Education</h6></div>
+                <div class="nd-selector">
+                    <select id="education-selector" class="nd-display">
+                        <option value="all">All</option>
+                        <option value="No qualifications">No qualifications</option>
+                        <option value="Level 1 qualifications">Level 1 qualifications</option>
+                        <option value="Level 2 qualifications">Level 2 qualifications</option>
+                        <option value="Apprenticeship">Apprenticeship</option>
+                        <option value="Level 3 qualifications">Level 3 qualifications</option>
+                        <option value="Level 4 qualifications and above">Level 4 qualifications and above</option>
+                    </select>
+
+                </div>
             </div>
         </section>
         <!-- end of average income number display -->
@@ -100,9 +137,11 @@
             </header>
             <div class="chart-grid">
                 <div class="chart-content">
-                    <p>According to the 2015 Census, one in three people (37%)
-                        in London were born outside the UK. So where is everyone
-                        coming from?
+                    <p>As per the Office for National Statistics (2016), 
+                        the demographic trend indicates a decline in the representation of individuals 
+                        born abroad in the specified sector (XXX). 
+                        However, it's crucial to understand the distribution comparison 
+                        between UK-born individuals and immigrants across various sectors.</p>
                     </p>
                 </div>
                 <div class="pie-chart">
@@ -112,8 +151,7 @@
                 </div> 
                 <div class="chart-content">
                     <p>
-                        <b>*Chart shows how many boroughs has each migrant
-                         country as its' largest migrant population.</b>
+                        <b>*Chart shows Sectors of employemnt for UK and non-UK born.</b>
                     </p>
                 </div>
             </div>
@@ -128,10 +166,7 @@
             <div class="map-grid">
                 <!-- crimes per borough map -->
                 <div class="chart-content">
-                    <p>There were over 800,000 reported crimes across 
-                        all the London boroughs between December 2015 and December 2016. 
-                        Explore the map below to see where the most crimes were 
-                        reported.</p>
+                    <p>more job Density in bla bla bla bla</p>
                 </div>
                 <div id="map-crimes">                
                     <a class="reset" style="display: none" href="javascript: dc.filterAll(); dc.redrawAll();">Reset Map</a>
@@ -142,15 +177,10 @@
                 <!-- end of crimes per borough map -->
                 <!-- crimes per row chart -->
                 <div class="chart-content">
-                    <p>According to Metropolitan Police’s data, Westminster was – by far – the 
-                        most crime ridden London borough in 2016 with 54,802 reported criminal offences.
-
-                        Overall, Kingston upon Thames, has been the ‘safest’ borough the past year
-                        with 11,298 criminal offences.
+                    <p>bla bla insights 1.
                     </p>
                     <p>
-                        <b>* Click on each borough on the map to see which crimes were most
-                        prevalent.</b>
+                        <b>* bla bla insights 2.</b>
                     </p>
                 </div>
                 <div id="row-crimes"></div>
@@ -166,15 +196,14 @@
             </header>
             <div class="chart-grid">
                 <div class="chart-content">
-                    <p>Does proximity to green space, quality and accessibility
-                        influence physical activity?
+                    <p>Does my Level of education affect my job opportinities in UK?
                     </p>
                 </div>
                 <div id="line-educational-level"></div>
                 <div class="chart-content">
-                    <p>The consensus linked increased green space to increased
-                        perceived health and reduced prevalence rates of a
-                        number of diseases, such as childhood obesity.
+                    <p> 
+                        The chart above shows the relationship between the level of education and the 
+                        employment, and it can easily shows the trend of the employment rate by the level of education.
                     </p>
                 </div>
             </div>
@@ -184,13 +213,11 @@
         <!-- gender pay gap composite chart -->
         <section id="gender-pay" class="card">
             <header class="card-header">
-                <h6>Gender Pay Gap</h6>
+                <h6>Occupation</h6>
             </header>
             <div class="chart-grid">
                 <div class="chart-content">
-                    <p> London as a region has the widest gender 
-                        pay gap in the UK. Currently, women working full-time in 
-                        London earn 14.6 per cent less than their male colleagues.
+                    <p> Skilled Trades Occupations are a prominent choice among employed immigrants, representing 50% of employment in that sector, particularly noticeable in London.
                     </p>
                 </div>
                 <div id="spider_occupation_chart"></div>
@@ -201,15 +228,16 @@
         <!-- avergae house price row chart -->
         <section id="avg-house" class="card">
             <header class="card-header">
-                <h6>Average House Price</h6>
+                <h6>Entrepreneurship  Indicator</h6>
             </header>
             <div class="chart-grid">
                 <div class="chart-content">
                     <p id="pie-chart-entrepreneur-text">
+                        Are you interested in starting your own business in UK?</br> the chart below shows the percentage of self-employed people in each sector. 
                     </p>
                 </div>
                 <div id="pie-chart-entrepreneur">
-                    <a class="reset" style="display: none" href="javascript: dc.filterAll(); dc.redrawAll();">Reset</a>
+                    <!-- <a class="reset" style="display: none" href="javascript: dc.filterAll(); dc.redrawAll();">Reset</a> -->
                 </div>
             </div>
         </section>
@@ -220,7 +248,7 @@
     <!--****** footer ******-->
     <footer>
         <div class="footer-content">
-            <h6>Created By Matt Bush 2019</h6>
+            <p>Visual Analytics project for the Centrale Supelec Master of Science in Big data management and Analytics (BDMA).</p>
         </div>
         <div class="reset-all">
             <a href="javascript:dc.filterAll(); dc.renderAll();">Reset All</a>
@@ -233,7 +261,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">London Boroughs Dashboard</h5>
+                <h5 class="modal-title">UK Immigration Employment Perception</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -243,30 +271,24 @@
                     <button type="button" class="btn btn-primary intro" data-dismiss="modal">Take tour</button>
                 </div>
                 <p>
-                    This dashboard features interactive charts to display data from two London Datasets. All charts are 
-                    clickable except for the four number displays at the top and the Obesity scatter plot.
+                    This dashboard is desiged for People who are interested to immigrate to UK, to get a better understanding of the UK employment situation.
+                </p>
+                <p>
+                    All charts are clickable except for the four number displays at the top.
                     When a chart is clicked, filters are applied to other charts which will display
                     results based on the selection. There is a reset all button 
                     at the bottom of the page to reset all charts.                
                 </p>
                 <p>
-                    Covered are some of the key indicators of any city such as demographic, 
-                    economic, environmental and crime.
+                    Covered are some of the key indicators of any Region such as Population, Employment Population, Job Density, 
+                    Level of Education, Occupation, Sectors, and Propotion of Self-Employed vs Employees.
                 </p>
                 <p>
                     Most of the charts are based on a 
-                    2015 dataset found at <a href="https://data.london.gov.uk/dataset/london-borough-profiles" target="_blank">The London Data Store</a>.
+                    2016 dataset found at <a href="https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/internationalmigration/articles/migrationandthelabourmarketuk/2016" target="_blank">Office for National Statistics</a>.
                 </p>   
-                <p>    
-                    The data used in the Crimes per Borough section was taken from
-                    a 2016 <a href=" https://www.met.police.uk/sd/stats-and-data" target="_blank">Met Police</a> 
-                    dataset. 
-                </p>
                 <p>
                     A short tutorial is provided to run you through the best way to use the dashboard.
-                </p>
-                <p>
-                    This information modal and the tutorial can also be accessed later via the icons at the top of the page.
                 </p>
             </div>
             <div class="modal-footer">
